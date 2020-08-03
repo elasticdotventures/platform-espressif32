@@ -40,12 +40,10 @@ class Espressif32Platform(PlatformBase):
                     self.packages[p]["optional"] = False
                 elif p in ("tool-mconf", "tool-idf") and "windows" in get_systype():
                     self.packages[p]['optional'] = False
-            self.packages['toolchain-xtensa32']['version'] = "~2.80200.0"
         # ESP32-S2 toolchain is identical for both Arduino and ESP-IDF
         if mcu == "esp32s2":
             self.packages.pop("toolchain-xtensa32", None)
             self.packages['toolchain-xtensa32s2']['optional'] = False
-            self.packages['tool-esptoolpy']['version'] = "~1.30000.0"
 
         build_core = variables.get(
             "board_build.core", board_config.get("build.core", "arduino")).lower()
@@ -54,6 +52,9 @@ class Espressif32Platform(PlatformBase):
             self.packages['framework-arduino-mbcwb']['optional'] = False
             self.packages['tool-mbctool']['type'] = "uploader"
             self.packages['tool-mbctool']['optional'] = False
+        if build_core == "mbcwb" or any(f in variables.get(
+                "pioframework", []) for f in ("simba", "pumbaa")):
+            self.packages['toolchain-xtensa32']['version'] = "~2.50200.0"
 
         return PlatformBase.configure_default_packages(self, variables,
                                                        targets)
